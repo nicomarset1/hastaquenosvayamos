@@ -580,8 +580,8 @@ img { max-width: 100%; display: block; }
 }
 
 .episode-card audio {
-  width: 220px;
-  max-width: 40vw;
+  width: 320px;
+  max-width: 45vw;
   height: 36px;
 }
 
@@ -657,7 +657,7 @@ img { max-width: 100%; display: block; }
 .episode-featured .episode-date { color: var(--azul-claro); }
 .episode-featured .episode-info h3 { color: var(--blanco); font-size: 1.15rem; }
 .episode-featured .episode-info p { color: rgba(255, 255, 255, 0.75); }
-.episode-featured audio { width: 240px; flex-shrink: 0; }
+.episode-featured audio { width: 320px; flex-shrink: 0; }
 .episode-featured .episode-external { flex-shrink: 0; }
 
 .episodes-toolbar {
