@@ -27,6 +27,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
       - name: Instalar ffmpeg
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
 
@@ -36,21 +40,42 @@ jobs:
           DURACION="${{ github.event.inputs.duracion_segundos }}"
           if [ -z "$DURACION" ]; then DURACION=4020; fi
           FECHA=$(TZ="America/Argentina/Buenos_Aires" date +%Y-%m-%d)
-          ARCHIVO="episodios/${FECHA}.mp3"
-          mkdir -p episodios
+          ARCHIVO="/tmp/${FECHA}.mp3"
           ffmpeg -y -i "http://173.255.205.241:7278/?type=https" -t "$DURACION" -c copy "$ARCHIVO"
+          TAMANO=$(stat -c%s "$ARCHIVO")
           echo "archivo=$ARCHIVO" >> "$GITHUB_OUTPUT"
+          if [ "$TAMANO" -lt 512000 ]; then
+            echo "valido=false" >> "$GITHUB_OUTPUT"
+            echo "Grabación muy chica ($TAMANO bytes) — probablemente no hubo transmisión. No se publica."
+          else
+            echo "valido=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Instalar dependencia de Vercel Blob
+        if: steps.grabar.outputs.valido == 'true'
+        run: npm install @vercel/blob --no-save
+
+      - name: Subir el audio a Vercel Blob
+        id: subir
+        if: steps.grabar.outputs.valido == 'true'
+        env:
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+        run: |
+          URL=$(node scripts/upload-blob.mjs "${{ steps.grabar.outputs.archivo }}")
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
 
       - name: Armar la entrada del episodio
-        run: node scripts/publish-episode.mjs "${{ steps.grabar.outputs.archivo }}"
+        if: steps.grabar.outputs.valido == 'true'
+        run: node scripts/publish-episode.mjs "${{ steps.subir.outputs.url }}"
 
       - name: Commit y push si hay algo nuevo
+        if: steps.grabar.outputs.valido == 'true'
         run: |
           git config user.name "hnv-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add episodios episodes.json
+          git add episodes.json
           if git diff --cached --quiet; then
-            echo "No hubo grabación válida esta vez, nada para publicar."
+            echo "Nada para publicar."
             exit 0
           fi
           git commit -m "Programa del $(TZ='America/Argentina/Buenos_Aires' date +%d-%m-%Y) [auto]"
