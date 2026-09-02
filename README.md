@@ -1,6 +1,6 @@
 # Hasta Que Nos Vayamos
 
-Página web de "Hasta Que Nos Vayamos" (HNV), programa de radio de alumnos de 2° año de Periodismo Deportivo (@deporteamdp), Mar del Plata. Al aire los lunes de 11:15 a 12:15 hs.
+Página web de "Hasta Que Nos Vayamos" (HNV), programa de radio de alumnos de 2° año de Periodismo Deportivo (@deporteamdp), Mar del Plata. Al aire los lunes de 11:14 a 12:14 hs.
 
 ## Contenido
 

@@ -136,7 +136,7 @@ const setPlayerStatus = (state) => {
     playerStatus.innerHTML = '<span class="dot"></span> Conectando…';
   } else if (state === 'error') {
     playerStatus.classList.add('is-error');
-    playerStatus.innerHTML = '<span class="dot"></span> Sin señal ahora — probá los lunes 11:15 a 12:15';
+    playerStatus.innerHTML = '<span class="dot"></span> Sin señal ahora — probá los lunes 11:14 a 12:14';
   } else {
     playerStatus.innerHTML = '<span class="dot"></span> Al aire los lunes';
   }
