@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hasta Que Nos Vayamos</title>
+<link rel="icon" href="assets/logo-color.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Titan+One&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="header">
+  <nav class="nav">
+    <img src="assets/logo-blanco.png" alt="HNV" class="nav-logo">
+    <ul class="nav-links">
+      <li><a href="#inicio">Inicio</a></li>
+      <li><a href="#equipo">Locutores</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+
+  <section id="inicio" class="hero">
+    <img src="assets/ola.png" alt="" class="hero-wave" aria-hidden="true">
+    <div class="hero-content">
+      <img src="assets/logo-blanco.png" alt="Hasta Que Nos Vayamos" class="hero-logo">
+      <h1>HASTA QUE NOS VAYAMOS</h1>
+      <p class="hero-subtitle">La radio de Mar del Plata</p>
+    </div>
+  </section>
+
+  <section id="en-vivo" class="player-section">
+    <div class="player-card">
+      <img src="assets/microfono.png" alt="" class="player-icon" aria-hidden="true">
+      <div class="player-info">
+        <span class="player-status"><span class="dot"></span> Próximamente</span>
+        <h2>Escuchanos en vivo</h2>
+        <p>El streaming se activa muy pronto. Volvé por acá.</p>
+      </div>
+      <button class="play-button" disabled aria-label="Reproducir">
+        <svg viewBox="0 0 24 24" width="28" height="28"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <section id="equipo" class="team-section">
+    <h2 class="section-title">Locutores</h2>
+    <div class="team-grid">
+      <article class="team-card">
+        <div class="team-photo"></div>
+        <h3>Nombre Apellido</h3>
+        <p>Programa</p>
+      </article>
+      <article class="team-card">
+        <div class="team-photo"></div>
+        <h3>Nombre Apellido</h3>
+        <p>Programa</p>
+      </article>
+      <article class="team-card">
+        <div class="team-photo"></div>
+        <h3>Nombre Apellido</h3>
+        <p>Programa</p>
+      </article>
+      <article class="team-card">
+        <div class="team-photo"></div>
+        <h3>Nombre Apellido</h3>
+        <p>Programa</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="contacto" class="contact-section">
+    <h2 class="section-title">Contacto</h2>
+    <div class="contact-grid">
+      <form class="contact-form">
+        <label for="nombre">Nombre</label>
+        <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="tu@email.com" required>
+
+        <label for="mensaje">Mensaje</label>
+        <textarea id="mensaje" name="mensaje" rows="5" placeholder="Escribí tu mensaje"></textarea>
+
+        <button type="submit">Enviar</button>
+      </form>
+
+      <div class="social-links">
+        <a href="#" class="social-link">Instagram</a>
+        <a href="#" class="social-link">Facebook</a>
+        <a href="#" class="social-link">Twitter / X</a>
+        <a href="#" class="social-link">WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <img src="assets/ola.png" alt="" class="footer-wave" aria-hidden="true">
+  <img src="assets/logo-blanco.png" alt="HNV" class="footer-logo">
+  <p>&copy; 2026 Hasta Que Nos Vayamos — Mar del Plata</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
