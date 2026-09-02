@@ -948,6 +948,32 @@ img { max-width: 100%; display: block; }
   color: var(--blanco);
 }
 
+.social-link-instagram {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #4f5bd5, #962fbf, #d62976, #fa7e1e, #feda75);
+  background-size: 220% 220%;
+  color: var(--blanco);
+  animation: ig-gradient 6s ease infinite;
+}
+
+.social-link-instagram:hover {
+  transform: translateY(-4px);
+  background: linear-gradient(135deg, #4f5bd5, #962fbf, #d62976, #fa7e1e, #feda75);
+  color: var(--blanco);
+}
+
+@keyframes ig-gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.social-link-instagram span { display: flex; flex-direction: column; }
+.social-link-instagram strong { font-size: 1rem; }
+.social-link-instagram small { font-weight: 500; opacity: 0.9; font-size: 0.8rem; }
+
 /* ---------- Footer ---------- */
 .footer {
   position: relative;
@@ -1017,8 +1043,6 @@ img { max-width: 100%; display: block; }
   .player-info p a { display: inline; }
   .section-watermark { width: 380px; }
   .team-tier { gap: 1.25rem; }
-  .social-links { flex-direction: row; flex-wrap: wrap; }
-  .social-link { flex: 1 1 45%; text-align: center; }
 }
 
 @media (max-width: 600px) {

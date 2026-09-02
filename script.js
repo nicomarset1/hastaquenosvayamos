@@ -174,27 +174,35 @@ playButton?.addEventListener('click', () => {
 
 // Episodios (Programas)
 const episodesList = document.getElementById('episodesList');
+const renderEmptyEpisodes = () => {
+  episodesList.innerHTML = `
+    <div class="episodes-empty">
+      <img src="assets/microfono.png" alt="" aria-hidden="true">
+      <strong>Todavía no subimos programas</strong>
+      <p>Acá vas a encontrar el audio completo de cada lunes, apenas salga al aire.</p>
+    </div>`;
+};
+
 if (episodesList) {
-  const episodios = window.EPISODIOS || [];
-  if (episodios.length === 0) {
-    episodesList.innerHTML = `
-      <div class="episodes-empty">
-        <img src="assets/microfono.png" alt="" aria-hidden="true">
-        <strong>Todavía no subimos programas</strong>
-        <p>Acá vas a encontrar el audio completo de cada lunes, apenas salga al aire.</p>
-      </div>`;
-  } else {
-    episodesList.innerHTML = episodios.map((ep) => `
-      <article class="episode-card">
-        <div class="episode-date">${ep.fecha}</div>
-        <div class="episode-info">
-          <h3>${ep.titulo}</h3>
-          ${ep.descripcion ? `<p>${ep.descripcion}</p>` : ''}
-        </div>
-        <audio controls preload="none" src="${ep.archivo}"></audio>
-      </article>
-    `).join('');
-  }
+  fetch('episodes.json')
+    .then((res) => (res.ok ? res.json() : []))
+    .then((episodios) => {
+      if (!Array.isArray(episodios) || episodios.length === 0) {
+        renderEmptyEpisodes();
+        return;
+      }
+      episodesList.innerHTML = episodios.map((ep) => `
+        <article class="episode-card">
+          <div class="episode-date">${ep.fecha}</div>
+          <div class="episode-info">
+            <h3>${ep.titulo}</h3>
+            ${ep.descripcion ? `<p>${ep.descripcion}</p>` : ''}
+          </div>
+          <audio controls preload="none" src="${ep.archivo}"></audio>
+        </article>
+      `).join('');
+    })
+    .catch(renderEmptyEpisodes);
 }
 
 // Chat-style contact widget

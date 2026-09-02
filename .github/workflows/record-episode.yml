@@ -1,0 +1,57 @@
+name: Grabar y publicar programa
+
+on:
+  schedule:
+    # Lunes 11:10 hora Argentina (UTC-3, sin horario de verano) = 14:10 UTC.
+    # Dispara 2 minutos antes de las 11:12 pedidas, de margen por si
+    # GitHub tarda un poco en arrancar el job.
+    - cron: '10 14 * * 1'
+  workflow_dispatch:
+    inputs:
+      duracion_segundos:
+        description: 'Duración de la grabación en segundos (dejar vacío = 67 min reales; usar un valor chico, ej. 30, para probar el flujo completo sin esperar)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: record-episode
+  cancel-in-progress: false
+
+jobs:
+  grabar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+
+      - name: Grabar el streaming en vivo
+        id: grabar
+        run: |
+          DURACION="${{ github.event.inputs.duracion_segundos }}"
+          if [ -z "$DURACION" ]; then DURACION=4020; fi
+          FECHA=$(TZ="America/Argentina/Buenos_Aires" date +%Y-%m-%d)
+          ARCHIVO="episodios/${FECHA}.mp3"
+          mkdir -p episodios
+          ffmpeg -y -i "http://173.255.205.241:7278/?type=https" -t "$DURACION" -c copy "$ARCHIVO"
+          echo "archivo=$ARCHIVO" >> "$GITHUB_OUTPUT"
+
+      - name: Armar la entrada del episodio
+        run: node scripts/publish-episode.mjs "${{ steps.grabar.outputs.archivo }}"
+
+      - name: Commit y push si hay algo nuevo
+        run: |
+          git config user.name "hnv-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add episodios episodes.json
+          if git diff --cached --quiet; then
+            echo "No hubo grabación válida esta vez, nada para publicar."
+            exit 0
+          fi
+          git commit -m "Programa del $(TZ='America/Argentina/Buenos_Aires' date +%d-%m-%Y) [auto]"
+          git push
