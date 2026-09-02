@@ -586,6 +586,20 @@ img { max-width: 100%; display: block; }
   height: 36px;
 }
 
+.episode-external {
+  flex-shrink: 0;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  background: #1db954;
+  color: var(--blanco);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.episode-external:hover { background: #17a44a; transform: translateY(-2px); }
+
 .episodes-empty {
   text-align: center;
   padding: 3rem 1.5rem;

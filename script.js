@@ -198,7 +198,9 @@ if (episodesList) {
             <h3>${ep.titulo}</h3>
             ${ep.descripcion ? `<p>${ep.descripcion}</p>` : ''}
           </div>
-          <audio controls preload="none" src="${ep.archivo}"></audio>
+          ${ep.archivo
+            ? `<audio controls preload="none" src="${ep.archivo}"></audio>`
+            : `<a href="${ep.url}" target="_blank" rel="noopener" class="episode-external">Escuchar en Spotify</a>`}
         </article>
       `).join('');
     })
