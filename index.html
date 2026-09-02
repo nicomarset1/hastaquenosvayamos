@@ -45,7 +45,7 @@
       <img src="assets/logo-mark-white.png" alt="Hasta Que Nos Vayamos" class="hero-logo" id="heroLogo">
       <h1 class="hero-title">HASTA QUE<br>NOS VAYAMOS</h1>
       <p class="hero-subtitle">Programa de radio de alumnos de 2° año de Periodismo Deportivo</p>
-      <div class="hero-schedule"><span class="dot"></span> Lunes de 11:15 a 12:15 hs</div>
+      <div class="hero-schedule"><span class="dot" id="heroDot"></span> Lunes de 11:15 a 12:15 hs</div>
       <p class="hero-about">Música, actualidad, deporte y tecnología, para pasar un buen rato — hasta que nos vayamos. 🎓</p>
       <a href="#en-vivo" class="scroll-cue" aria-label="Ir a en vivo">
         <span></span>
@@ -83,7 +83,16 @@
   <section id="programas" class="episodes-section">
     <h2 class="section-title" data-reveal>Programas</h2>
     <p class="section-subtitle" data-reveal>Los audios completos de cada lunes, a medida que salen al aire</p>
+
+    <div class="episodes-latest" id="episodesLatest" data-reveal></div>
+
+    <div class="episodes-toolbar" id="episodesToolbar" data-reveal hidden>
+      <input type="search" id="episodesSearch" placeholder="Buscar por fecha o título (ej: 31 ago)">
+    </div>
+
     <div class="episodes-list" id="episodesList" data-reveal></div>
+    <button class="episodes-more" id="episodesMore" hidden>Ver más programas</button>
+
     <div class="wave-divider" style="--fill: var(--azul-pastel);">
       <svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0,50 C480,0 960,110 1440,30 L1440,120 L0,120 Z"/></svg>
     </div>

@@ -420,18 +420,17 @@ img { max-width: 100%; display: block; }
   50% { box-shadow: 0 0 0 6px rgba(66, 142, 204, 0); }
 }
 
-.dot.dot-live { background: #e5484d; }
-
 .dot.dot-live {
+  background: #22c55e;
   animation: dot-pulse-live 1.2s ease-in-out infinite;
 }
 
 @keyframes dot-pulse-live {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(229, 72, 77, 0.55); }
-  50% { box-shadow: 0 0 0 7px rgba(229, 72, 77, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55); }
+  50% { box-shadow: 0 0 0 7px rgba(34, 197, 94, 0); }
 }
 
-.player-status.is-live { color: #e5484d; }
+.player-status.is-live { color: #22c55e; }
 .player-status.is-error { color: #b45309; }
 
 .player-info h2 {
@@ -466,7 +465,7 @@ img { max-width: 100%; display: block; }
 
 .eq-bars.playing span {
   animation-play-state: running;
-  background: #e5484d;
+  background: #22c55e;
 }
 
 .eq-bars span:nth-child(1) { animation-delay: 0s; }
@@ -620,6 +619,95 @@ img { max-width: 100%; display: block; }
   font-family: var(--font-display);
   font-size: 1.1rem;
   margin-bottom: 0.4rem;
+}
+
+.episodes-latest {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  margin: 0 auto 2rem;
+}
+
+.episode-featured {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: linear-gradient(120deg, var(--azul-oscuro), var(--azul-medio));
+  color: var(--blanco);
+  border-radius: 18px;
+  padding: 1.6rem 1.75rem;
+  box-shadow: 0 14px 34px rgba(24, 73, 154, 0.25);
+}
+
+.episode-featured-tag {
+  position: absolute;
+  top: -12px;
+  left: 1.5rem;
+  background: var(--azul-claro);
+  color: var(--azul-oscuro);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+}
+
+.episode-featured .episode-date { color: var(--azul-claro); }
+.episode-featured .episode-info h3 { color: var(--blanco); font-size: 1.15rem; }
+.episode-featured .episode-info p { color: rgba(255, 255, 255, 0.75); }
+.episode-featured audio { width: 240px; flex-shrink: 0; }
+.episode-featured .episode-external { flex-shrink: 0; }
+
+.episodes-toolbar {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  margin: 0 auto 1.25rem;
+}
+
+.episodes-toolbar input {
+  width: 100%;
+  padding: 0.75rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(24, 73, 154, 0.15);
+  background: var(--azul-pastel);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--negro);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.episodes-toolbar input:focus {
+  outline: none;
+  border-color: var(--azul-medio);
+  box-shadow: 0 0 0 3px rgba(66, 142, 204, 0.15);
+  background: var(--blanco);
+}
+
+.episodes-more {
+  position: relative;
+  z-index: 1;
+  display: block;
+  margin: 1.25rem auto 0;
+  padding: 0.65rem 1.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--azul-medio);
+  background: transparent;
+  color: var(--azul-oscuro);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.episodes-more:hover { background: var(--azul-oscuro); color: var(--blanco); }
+
+.episodes-no-results {
+  text-align: center;
+  color: #778;
+  padding: 1.5rem;
 }
 
 .team-section {
@@ -1039,6 +1127,10 @@ img { max-width: 100%; display: block; }
   .chat-header { padding: 0.85rem 1rem; }
   .chat-form, .chat-body { padding: 1rem; }
   .section-watermark { width: 280px; }
+  .episode-featured { flex-direction: column; text-align: center; }
+  .episode-featured audio { width: 100%; }
+  .episode-card { flex-direction: column; text-align: center; }
+  .episode-card audio { width: 100%; max-width: 100%; }
 }
 
 @media (max-width: 400px) {

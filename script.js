@@ -119,6 +119,7 @@ const playButton = document.getElementById('playButton');
 const playIcon = document.getElementById('playIcon');
 const playerStatus = document.getElementById('playerStatus');
 const eqBars = document.getElementById('eqBars');
+const heroDot = document.getElementById('heroDot');
 
 const ICON_PLAY = 'M8 5v14l11-7z';
 const ICON_PAUSE = 'M6 5h4v14H6zM14 5h4v14h-4z';
@@ -140,6 +141,7 @@ const setPlayerStatus = (state) => {
     playerStatus.innerHTML = '<span class="dot"></span> Al aire los lunes';
   }
   eqBars?.classList.toggle('playing', state === 'live');
+  heroDot?.classList.toggle('dot-live', state === 'live');
 };
 
 playButton?.addEventListener('click', () => {
@@ -173,17 +175,74 @@ playButton?.addEventListener('click', () => {
 });
 
 // Episodios (Programas)
+const episodesLatest = document.getElementById('episodesLatest');
 const episodesList = document.getElementById('episodesList');
+const episodesToolbar = document.getElementById('episodesToolbar');
+const episodesSearch = document.getElementById('episodesSearch');
+const episodesMore = document.getElementById('episodesMore');
+
+const EPISODES_PAGE_SIZE = 6;
+let allEpisodios = [];
+let episodesShowAll = false;
+
+const episodeMediaHtml = (ep) => (ep.archivo
+  ? `<audio controls preload="none" src="${ep.archivo}"></audio>`
+  : `<a href="${ep.url}" target="_blank" rel="noopener" class="episode-external">Escuchar en Spotify</a>`);
+
 const renderEmptyEpisodes = () => {
-  episodesList.innerHTML = `
-    <div class="episodes-empty">
-      <img src="assets/microfono.png" alt="" aria-hidden="true">
-      <strong>Todavía no subimos programas</strong>
-      <p>Acá vas a encontrar el audio completo de cada lunes, apenas salga al aire.</p>
-    </div>`;
+  if (episodesLatest) {
+    episodesLatest.innerHTML = `
+      <div class="episodes-empty">
+        <img src="assets/microfono.png" alt="" aria-hidden="true">
+        <strong>Todavía no subimos programas</strong>
+        <p>Acá vas a encontrar el audio completo de cada lunes, apenas salga al aire.</p>
+      </div>`;
+  }
 };
 
-if (episodesList) {
+const renderLatestEpisode = (ep) => {
+  episodesLatest.innerHTML = `
+    <article class="episode-featured">
+      <span class="episode-featured-tag">Último programa</span>
+      <div class="episode-date">${ep.fecha}</div>
+      <div class="episode-info">
+        <h3>${ep.titulo}</h3>
+        ${ep.descripcion ? `<p>${ep.descripcion}</p>` : ''}
+      </div>
+      ${episodeMediaHtml(ep)}
+    </article>`;
+};
+
+const renderEpisodesList = (items, searching) => {
+  if (items.length === 0) {
+    episodesList.innerHTML = '<p class="episodes-no-results">No encontramos programas con esa búsqueda.</p>';
+    episodesMore.hidden = true;
+    return;
+  }
+  const visible = (episodesShowAll || searching) ? items : items.slice(0, EPISODES_PAGE_SIZE);
+  episodesList.innerHTML = visible.map((ep) => `
+    <article class="episode-card">
+      <div class="episode-date">${ep.fecha}</div>
+      <div class="episode-info">
+        <h3>${ep.titulo}</h3>
+        ${ep.descripcion ? `<p>${ep.descripcion}</p>` : ''}
+      </div>
+      ${episodeMediaHtml(ep)}
+    </article>
+  `).join('');
+  episodesMore.hidden = episodesShowAll || searching || items.length <= EPISODES_PAGE_SIZE;
+};
+
+const applyEpisodesFilter = () => {
+  const query = episodesSearch.value.trim().toLowerCase();
+  const rest = allEpisodios.slice(1);
+  const filtered = query
+    ? rest.filter((ep) => `${ep.fecha} ${ep.titulo}`.toLowerCase().includes(query))
+    : rest;
+  renderEpisodesList(filtered, Boolean(query));
+};
+
+if (episodesLatest) {
   fetch('episodes.json')
     .then((res) => (res.ok ? res.json() : []))
     .then((episodios) => {
@@ -191,20 +250,24 @@ if (episodesList) {
         renderEmptyEpisodes();
         return;
       }
-      episodesList.innerHTML = episodios.map((ep) => `
-        <article class="episode-card">
-          <div class="episode-date">${ep.fecha}</div>
-          <div class="episode-info">
-            <h3>${ep.titulo}</h3>
-            ${ep.descripcion ? `<p>${ep.descripcion}</p>` : ''}
-          </div>
-          ${ep.archivo
-            ? `<audio controls preload="none" src="${ep.archivo}"></audio>`
-            : `<a href="${ep.url}" target="_blank" rel="noopener" class="episode-external">Escuchar en Spotify</a>`}
-        </article>
-      `).join('');
+      allEpisodios = episodios;
+      renderLatestEpisode(episodios[0]);
+      if (episodios.length > 1) {
+        episodesToolbar.hidden = false;
+        applyEpisodesFilter();
+      }
     })
     .catch(renderEmptyEpisodes);
+
+  episodesSearch?.addEventListener('input', () => {
+    episodesShowAll = false;
+    applyEpisodesFilter();
+  });
+
+  episodesMore?.addEventListener('click', () => {
+    episodesShowAll = true;
+    applyEpisodesFilter();
+  });
 }
 
 // Chat-style contact widget
