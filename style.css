@@ -13,6 +13,8 @@
 
 html { scroll-behavior: smooth; }
 
+main section[id] { scroll-margin-top: 90px; }
+
 body {
   font-family: var(--font-body);
   background: var(--azul-pastel);
@@ -186,9 +188,12 @@ img { max-width: 100%; display: block; }
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-top: 90px;
+  padding-bottom: 2rem;
   background: linear-gradient(160deg, var(--azul-oscuro) 0%, var(--azul-medio) 100%);
   text-align: center;
   overflow: hidden;
+  scroll-margin-top: 90px;
 }
 
 .blob {
