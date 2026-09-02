@@ -805,6 +805,8 @@ img { max-width: 100%; display: block; }
   height: 120px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--azul-claro), var(--azul-medio));
+  background-size: cover;
+  background-position: center;
   margin: 0 auto 1rem;
   transition: transform 0.3s ease;
 }
