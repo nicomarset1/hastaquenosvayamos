@@ -124,8 +124,22 @@ const heroDot = document.getElementById('heroDot');
 const ICON_PLAY = 'M8 5v14l11-7z';
 const ICON_PAUSE = 'M6 5h4v14H6zM14 5h4v14h-4z';
 
+// /api/stream corre como funcion Node con duracion maxima (ver vercel.json),
+// asi que no puede sostener una sola conexion durante toda la hora del
+// programa. Antes de que Vercel la corte, nos reconectamos solos con una
+// conexion nueva (y si se cae la conexion por cualquier otro motivo,
+// reintentamos con backoff) para que el oyente no tenga que tocar play de
+// nuevo cada pocos minutos.
+const STREAM_REFRESH_MS = 280 * 1000; // vercel.json permite hasta 300s
+const RECONNECT_DELAY_MS = 1500;
+const MAX_AUTO_RETRIES = 5;
+
 let liveAudio = null;
 let isPlaying = false;
+let wantsPlaying = false;
+let retryCount = 0;
+let reconnectTimer = null;
+let refreshTimer = null;
 
 const setPlayerStatus = (state) => {
   playerStatus.classList.remove('is-live', 'is-error');
@@ -144,34 +158,68 @@ const setPlayerStatus = (state) => {
   heroDot?.classList.toggle('dot-live', state === 'live');
 };
 
-playButton?.addEventListener('click', () => {
-  if (isPlaying) {
-    liveAudio?.pause();
-    isPlaying = false;
-    playIcon.setAttribute('d', ICON_PLAY);
-    playButton.classList.remove('playing');
-    setPlayerStatus('idle');
-    return;
-  }
+const stopPlayback = () => {
+  wantsPlaying = false;
+  clearTimeout(reconnectTimer);
+  clearTimeout(refreshTimer);
+  liveAudio?.pause();
+  liveAudio = null;
+  isPlaying = false;
+  playIcon.setAttribute('d', ICON_PLAY);
+  playButton.classList.remove('playing');
+};
 
-  if (!liveAudio) {
-    liveAudio = new Audio('/api/stream');
-    liveAudio.preload = 'none';
-    liveAudio.addEventListener('playing', () => setPlayerStatus('live'));
-    liveAudio.addEventListener('error', () => {
-      isPlaying = false;
-      playIcon.setAttribute('d', ICON_PLAY);
-      playButton.classList.remove('playing');
-      setPlayerStatus('error');
-    });
-  }
+const scheduleRefresh = () => {
+  clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(() => connectStream(true), STREAM_REFRESH_MS);
+};
 
-  setPlayerStatus('connecting');
-  liveAudio.play().then(() => {
+const connectStream = (isReconnect) => {
+  if (!wantsPlaying) return;
+  if (!isReconnect) setPlayerStatus('connecting');
+
+  const previous = liveAudio;
+  const audio = new Audio(`/api/stream?t=${Date.now()}`);
+  audio.preload = 'none';
+  liveAudio = audio;
+
+  audio.addEventListener('playing', () => {
+    if (liveAudio !== audio) return;
+    retryCount = 0;
     isPlaying = true;
     playIcon.setAttribute('d', ICON_PAUSE);
     playButton.classList.add('playing');
-  }).catch(() => setPlayerStatus('error'));
+    setPlayerStatus('live');
+    scheduleRefresh();
+    previous?.pause();
+  });
+
+  const onDrop = () => {
+    if (liveAudio !== audio || !wantsPlaying) return;
+    retryCount += 1;
+    if (retryCount > MAX_AUTO_RETRIES) {
+      stopPlayback();
+      setPlayerStatus('error');
+      return;
+    }
+    clearTimeout(reconnectTimer);
+    reconnectTimer = setTimeout(() => connectStream(true), RECONNECT_DELAY_MS);
+  };
+  audio.addEventListener('error', onDrop);
+  audio.addEventListener('ended', onDrop);
+
+  audio.play().catch(onDrop);
+};
+
+playButton?.addEventListener('click', () => {
+  if (wantsPlaying) {
+    stopPlayback();
+    setPlayerStatus('idle');
+    return;
+  }
+  wantsPlaying = true;
+  retryCount = 0;
+  connectStream(false);
 });
 
 // Episodios (Programas)
