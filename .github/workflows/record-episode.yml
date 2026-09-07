@@ -6,8 +6,11 @@ on:
     # disparo pensado para las 11:10 ART arranco a las 15:42 ART y grabo
     # medio programa de otra franja horaria). Para tolerar eso, disparamos
     # cada 5 min durante toda la ventana real del programa (11:05 a 12:15
-    # ART = 14:05 a 15:15 UTC); el primer disparo que caiga dentro de la
-    # ventana graba, y "Verificar ventana de grabacion" descarta el resto.
+    # ART = 14:05 a 15:15 UTC) como respaldo, ademas del disparo principal
+    # via Vercel Cron + workflow_dispatch (ver api/trigger-recording.js),
+    # que es mas confiable. El primer disparo que efectivamente llegue a
+    # tiempo graba; "Esperar el horario exacto" y "Verificar ventana de
+    # grabacion" descartan o ajustan el resto.
     - cron: '5-55/5 14 * * 1'
     - cron: '0-15/5 15 * * 1'
   workflow_dispatch:
@@ -27,7 +30,9 @@ concurrency:
 jobs:
   grabar:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    # Puede esperar hasta ~100 min (ver wait-until-start.mjs) mas la
+    # grabacion en si (hasta 70 min), asi que damos margen de sobra.
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
 
@@ -38,22 +43,31 @@ jobs:
       - name: Instalar ffmpeg
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
 
+      - name: Esperar el horario exacto
+        id: espera
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.duracion_segundos == '')
+        run: |
+          RESULTADO=$(node scripts/wait-until-start.mjs)
+          echo "$RESULTADO" >> "$GITHUB_OUTPUT"
+          ESPERA=$(echo "$RESULTADO" | cut -d= -f2)
+          echo "Esperando ${ESPERA}s hasta el horario de inicio..."
+          sleep "$ESPERA"
+
       - name: Verificar ventana de grabacion
         id: ventana
-        if: github.event_name == 'schedule'
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.duracion_segundos == '')
         run: node scripts/check-recording-window.mjs >> "$GITHUB_OUTPUT"
 
       - name: Grabar el streaming en vivo
         id: grabar
-        if: github.event_name != 'schedule' || steps.ventana.outputs.grabar == 'true'
+        if: (github.event_name == 'workflow_dispatch' && github.event.inputs.duracion_segundos != '') || steps.ventana.outputs.grabar == 'true'
         run: |
           DURACION="${{ github.event.inputs.duracion_segundos }}"
           if [ -z "$DURACION" ]; then
-            if [ "${{ github.event_name }}" = "schedule" ]; then
-              DURACION="${{ steps.ventana.outputs.duracion }}"
-            else
-              DURACION=4020
-            fi
+            DURACION="${{ steps.ventana.outputs.duracion }}"
+          fi
+          if [ -z "$DURACION" ]; then
+            DURACION=4020
           fi
           FECHA=$(TZ="America/Argentina/Buenos_Aires" date +%Y-%m-%d)
           ARCHIVO="/tmp/${FECHA}.mp3"

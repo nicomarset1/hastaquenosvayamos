@@ -42,6 +42,9 @@ if (!esLunes) {
   console.log('grabar=false');
   console.log(`motivo=Se disparo fuera de la ventana del programa (quedaban ${segundosRestantes}s)`);
 } else {
+  // Nunca grabar mas de 70 min de una, aunque el calculo de horario de
+  // arriba de por si algun resultado raro (guarda de seguridad extra).
+  const duracion = Math.min(segundosRestantes, 70 * 60);
   console.log('grabar=true');
-  console.log(`duracion=${segundosRestantes}`);
+  console.log(`duracion=${duracion}`);
 }

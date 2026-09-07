@@ -2,6 +2,15 @@
   "functions": {
     "api/stream.js": {
       "maxDuration": 300
+    },
+    "api/trigger-recording.js": {
+      "maxDuration": 10
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/trigger-recording",
+      "schedule": "0 13 * * 1"
+    }
+  ]
 }
