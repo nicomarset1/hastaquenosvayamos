@@ -2,10 +2,14 @@ name: Grabar y publicar programa
 
 on:
   schedule:
-    # Lunes 11:10 hora Argentina (UTC-3, sin horario de verano) = 14:10 UTC.
-    # Dispara 2 minutos antes de las 11:12 pedidas, de margen por si
-    # GitHub tarda un poco en arrancar el job.
-    - cron: '10 14 * * 1'
+    # GitHub puede demorar un cron programado varias horas (nos paso: un
+    # disparo pensado para las 11:10 ART arranco a las 15:42 ART y grabo
+    # medio programa de otra franja horaria). Para tolerar eso, disparamos
+    # cada 5 min durante toda la ventana real del programa (11:05 a 12:15
+    # ART = 14:05 a 15:15 UTC); el primer disparo que caiga dentro de la
+    # ventana graba, y "Verificar ventana de grabacion" descarta el resto.
+    - cron: '5-55/5 14 * * 1'
+    - cron: '0-15/5 15 * * 1'
   workflow_dispatch:
     inputs:
       duracion_segundos:
@@ -34,11 +38,23 @@ jobs:
       - name: Instalar ffmpeg
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
 
+      - name: Verificar ventana de grabacion
+        id: ventana
+        if: github.event_name == 'schedule'
+        run: node scripts/check-recording-window.mjs >> "$GITHUB_OUTPUT"
+
       - name: Grabar el streaming en vivo
         id: grabar
+        if: github.event_name != 'schedule' || steps.ventana.outputs.grabar == 'true'
         run: |
           DURACION="${{ github.event.inputs.duracion_segundos }}"
-          if [ -z "$DURACION" ]; then DURACION=4020; fi
+          if [ -z "$DURACION" ]; then
+            if [ "${{ github.event_name }}" = "schedule" ]; then
+              DURACION="${{ steps.ventana.outputs.duracion }}"
+            else
+              DURACION=4020
+            fi
+          fi
           FECHA=$(TZ="America/Argentina/Buenos_Aires" date +%Y-%m-%d)
           ARCHIVO="/tmp/${FECHA}.mp3"
           ffmpeg -y -i "http://173.255.205.241:7278/?type=https" -t "$DURACION" -c copy "$ARCHIVO"
