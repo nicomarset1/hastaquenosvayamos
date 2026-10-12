@@ -24,6 +24,10 @@ const CORTE_MINUTOS = 12 * 60 + 16;
 const minutosActuales = arg.getUTCHours() * 60 + arg.getUTCMinutes();
 const segundosRestantes = (CORTE_MINUTOS - minutosActuales) * 60 - arg.getUTCSeconds();
 
+// Lunes sin programa (feriados). Formato AAAA-MM-DD, fecha de Argentina.
+const SIN_PROGRAMA = ['2026-10-12'];
+const fechaIso = arg.toISOString().slice(0, 10);
+
 const DURACION_MINIMA = 300; // menos de 5 min de aire no vale la pena grabar/publicar
 
 let yaPublicado = false;
@@ -35,6 +39,9 @@ if (existsSync('episodes.json')) {
 if (!esLunes) {
   console.log('grabar=false');
   console.log(`motivo=No es lunes (hoy en ARG: ${arg.toISOString().slice(0, 10)})`);
+} else if (SIN_PROGRAMA.includes(fechaIso)) {
+  console.log('grabar=false');
+  console.log(`motivo=Hoy no hay programa (${fechaIso} marcado como feriado)`);
 } else if (yaPublicado) {
   console.log('grabar=false');
   console.log(`motivo=Ya hay un episodio publicado con fecha ${fechaHoy}`);
